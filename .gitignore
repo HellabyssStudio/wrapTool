@@ -1,0 +1,5 @@
+# Compiled ts files
+/code/js/**
+
+# Dependency directories
+node_modules/

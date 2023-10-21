@@ -1,0 +1,32 @@
+{
+  "name": "wraptool",
+  "version": "1.0.0",
+  "description": "Wrapping tool for Hellabyss assets",
+  "type": "commonjs",
+  "main": "./code/js/app.js",
+  "scripts": {
+    "start": "node ./code/js/app.js",
+    "build": "tsc",
+    "build-start": "npm run build && npm run start",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/HellabyssStudio/wrapTool.git"
+  },
+  "author": "Xbatovec",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/HellabyssStudio/wrapTool/issues"
+  },
+  "homepage": "https://github.com/HellabyssStudio/wrapTool#readme",
+  "devDependencies": {
+    "@types/archiver": "^5.3.4",
+    "@types/node": "^20.8.7",
+    "typescript": "^5.2.2"
+  },
+  "dependencies": {
+    "archiver": "^6.0.1",
+    "prompt-sync": "^4.2.0"
+  }
+}
