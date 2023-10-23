@@ -1,4 +1,4 @@
-import fs from 'fs';
+import fs, { stat } from 'fs';
 import path from 'path';
 import Wrapper from './wrapper';
 import { Items } from './customTypes';
@@ -29,6 +29,7 @@ class WrapSystem {
             const files = fs.readdirSync(absPath);
             let totalSize = 0;
             let fileCount = 0;
+            let biggestFileSize = 0;
             let updatedAt: string;
             
             files.forEach(item => {
@@ -41,12 +42,13 @@ class WrapSystem {
                     
                 } else if (stats.isFile()) {
                     if (item.includes('updt')) updatedAt = item;
-                    totalSize += this.findDownloadLocations(subAbsPath, subRelPath);
+                    if (biggestFileSize < stats.size) biggestFileSize = stats.size;
+                    totalSize += stats.size;
                     fileCount++;
                 }
             });
     
-            if (fileCount) this.downloadLocations.push({size: totalSize, absPath, relPath, updatedAt});
+            if (fileCount && updatedAt !== undefined) this.downloadLocations.push({size: totalSize, absPath, relPath, updatedAt, biggestFileSize});
             return totalSize;
     
         } else return 0; // Unknown type
@@ -61,18 +63,22 @@ class WrapSystem {
             let zipSize = 0;
             let zipID = 0;
             let wrapper = new Wrapper(outDir, loc, zipID, loc.updatedAt);
+
+            const minLimit = loc.biggestFileSize;
+            const maxLimit = Math.floor(1.9 * 1024 * 1024 * 1024);
+            const dynamicLimit = sizeLimiterCalculator.calculate(loc.size, minLimit, maxLimit);
     
             for (let i = 0; i < files.length; i++) {
                 
-                const subAbsPath = path.join(loc.absPath, files[i]);
-                const stats = fs.statSync(subAbsPath);
-    
+                const subAbsLoc = path.join(loc.absPath, files[i]);
+                const stats = fs.statSync(subAbsLoc);
+                
     
                 // skip directories and updateAt files
                 if (stats.isDirectory() || files[i].includes('updt')) continue;
     
                 // reset wrapper after passing size limit
-                if (zipSize + stats.size > 200 * 1024 * 1024) {
+                if (zipSize + stats.size > dynamicLimit[0]) {
                     zipSize = stats.size;
                     zipID++;
                     wrapper.finalize();
@@ -80,7 +86,7 @@ class WrapSystem {
                 }
     
                 // Add files to the archive
-                wrapper.addFile(subAbsPath, files[i]);
+                wrapper.addFile(subAbsLoc, files[i]);
                 zipSize += stats.size;
             }
     
@@ -91,7 +97,16 @@ class WrapSystem {
 
 class sizeLimiterCalculator {
 
-    public static calculate() {
+    public static calculate(folderSize: number, minSize: number, maxSize: number) {
 
-    } 
+        const MB = 1024 * 1024;
+
+        switch (true) {
+            case folderSize < 300*MB && minSize < 300*MB: return [Math.ceil(folderSize + 1*MB), 1];
+            case folderSize < 1000*MB && minSize < folderSize * 5/8: return [Math.ceil(folderSize * 5/8), 2]; // half + 1/8
+            case folderSize < maxSize && minSize < folderSize * 3/8: return [Math.ceil(folderSize * 3/8), 3]; // quarter + 1/8
+            case minSize < 500*MB: return [Math.ceil(500*MB), 4];
+            default: return [Math.ceil(minSize + 10*MB), 5];
+        }
+    }
 }
