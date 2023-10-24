@@ -23,6 +23,7 @@
   "devDependencies": {
     "@types/archiver": "^5.3.4",
     "@types/node": "^20.8.7",
+    "@types/prompt-sync": "^4.2.2",
     "typescript": "^5.2.2"
   },
   "dependencies": {

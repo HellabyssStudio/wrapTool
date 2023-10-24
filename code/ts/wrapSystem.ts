@@ -1,7 +1,7 @@
-import fs, { stat } from 'fs';
+import fs from 'fs';
 import path from 'path';
 import Wrapper from './wrapper';
-import { Items } from './customTypes';
+import { Color, Items } from './customTypes';
 
 export class FileWrapper {
 
@@ -56,6 +56,9 @@ class WrapSystem {
 
     wrap(outDir: string) {
 
+        console.log(`\n${Color.GRAY}Found a total of ${Color.YELLOW}${this.downloadLocations.length}${Color.GRAY} end-folders.${Color.RESET}\n`);
+        console.log(`${Color.GREEN}WRAPPED FOLDERS:${Color.RESET}`);
+
         this.downloadLocations.forEach(loc => {
     
             const files = fs.readdirSync(loc.absPath);
@@ -93,6 +96,8 @@ class WrapSystem {
             wrapper.finalize();
         });
     }
+
+    public getdownloadLocations = () => this.downloadLocations;
 }
 
 class sizeLimiterCalculator {

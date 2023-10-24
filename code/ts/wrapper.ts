@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import archiver from 'archiver';
-import { Item } from './customTypes';
+import { Color, Item } from './customTypes';
 
 export default class Wrapper {
 
@@ -10,12 +10,11 @@ export default class Wrapper {
 
     constructor(outDir: string, loc: Item, zipID: number, updatedAt: string) {
         
-        console.log(path.join(outDir, `${loc.relPath.replace('\\', '.')}${zipID}-${updatedAt}.zip`));
         this.output = fs.createWriteStream(path.join(outDir, `${loc.relPath.replaceAll('\\', '.')}${zipID}-${updatedAt}.zip`));
         this.archive = archiver('zip', {zlib: { level: 9 }}); // Set the compression level (0-9)
 
         this.output.on('close', () => {
-            console.log('Archive', loc.relPath, 'created:', this.archive.pointer(), 'total bytes');
+            console.log(`${loc.relPath} ${Color.YELLOW}${this.archive.pointer()}B${Color.RESET}`);
         });
     
         this.archive.on('error', (err) => {
