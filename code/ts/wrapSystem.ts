@@ -81,7 +81,7 @@ class WrapSystem {
                 if (stats.isDirectory() || files[i].includes('updt')) continue;
     
                 // reset wrapper after passing size limit
-                if (zipSize + stats.size > dynamicLimit[0]) {
+                if (zipSize + stats.size > dynamicLimit) {
                     zipSize = stats.size;
                     zipID++;
                     wrapper.finalize();
@@ -107,11 +107,11 @@ class sizeLimiterCalculator {
         const MB = 1024 * 1024;
 
         switch (true) {
-            case folderSize < 300*MB && minSize < 300*MB: return [Math.ceil(folderSize + 1*MB), 1];
-            case folderSize < 1000*MB && minSize < folderSize * 5/8: return [Math.ceil(folderSize * 5/8), 2]; // half + 1/8
-            case folderSize < maxSize && minSize < folderSize * 3/8: return [Math.ceil(folderSize * 3/8), 3]; // quarter + 1/8
-            case minSize < 500*MB: return [Math.ceil(500*MB), 4];
-            default: return [Math.ceil(minSize + 10*MB), 5];
+            case folderSize < 300*MB && minSize < 300*MB: return Math.ceil(folderSize + 1*MB);
+            case folderSize < 1000*MB && minSize < folderSize * 5/8: return Math.ceil(folderSize * 5/8); // half + 1/8
+            case folderSize < maxSize && minSize < folderSize * 3/8: return Math.ceil(folderSize * 3/8); // quarter + 1/8
+            case minSize < 500*MB: return Math.ceil(500*MB);
+            default: return Math.ceil(minSize + 10*MB);
         }
     }
 }
