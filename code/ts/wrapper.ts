@@ -10,7 +10,7 @@ export default class Wrapper {
 
     constructor(outDir: string, loc: Item, zipID: number, updatedAt: string) {
         
-        this.output = fs.createWriteStream(path.join(outDir, `${loc.relPath.replaceAll('\\', '.')}${zipID}-${updatedAt}.zip`));
+        this.output = fs.createWriteStream(path.join(outDir, `${loc.relPath.replaceAll('\\', '.')}-${zipID}-${updatedAt}.zip`));
         this.archive = archiver('zip', {zlib: { level: 9 }}); // Set the compression level (0-9)
 
         this.output.on('close', () => {

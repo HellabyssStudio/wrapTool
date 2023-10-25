@@ -21,37 +21,33 @@ class WrapSystem {
 
         const stats = fs.statSync(absPath);
     
-        if (stats.isFile()) {
-            return stats.size; // If it's a file, return its size in bytes
-    
-        } else if (stats.isDirectory()) {
-            // If it's a directory, calculate the total size of its contents
-            const files = fs.readdirSync(absPath);
-            let totalSize = 0;
-            let fileCount = 0;
-            let biggestFileSize = 0;
-            let updatedAt: string;
-            
-            files.forEach(item => {
-                const subAbsPath = path.join(absPath, item);
-                const subRelPath = path.join(relPath, item);
-                const stats = fs.statSync(subAbsPath);
-    
-                if (stats.isDirectory()) {
-                    this.findDownloadLocations(subAbsPath, subRelPath);
-                    
-                } else if (stats.isFile()) {
-                    if (item.includes('updt')) updatedAt = item;
-                    if (biggestFileSize < stats.size) biggestFileSize = stats.size;
-                    totalSize += stats.size;
-                    fileCount++;
-                }
-            });
-    
-            if (fileCount && updatedAt !== undefined) this.downloadLocations.push({size: totalSize, absPath, relPath, updatedAt, biggestFileSize});
-            return totalSize;
-    
-        } else return 0; // Unknown type
+        if (!stats.isDirectory()) return 0;
+        
+        // If it's a directory, calculate the total size of its contents
+        const files = fs.readdirSync(absPath);
+        let totalSize = 0;
+        let fileCount = 0;
+        let biggestFileSize = 0;
+        let updatedAt: string;
+        
+        files.forEach(item => {
+            const subAbsPath = path.join(absPath, item);
+            const subRelPath = path.join(relPath, item);
+            const stats = fs.statSync(subAbsPath);
+
+            if (stats.isDirectory()) {
+                this.findDownloadLocations(subAbsPath, subRelPath);
+                
+            } else if (stats.isFile()) {
+                if (item.includes('updt')) updatedAt = item;
+                if (biggestFileSize < stats.size) biggestFileSize = stats.size;
+                totalSize += stats.size;
+                fileCount++;
+            }
+        });
+
+        if (fileCount && updatedAt !== undefined) this.downloadLocations.push({size: totalSize, absPath, relPath, updatedAt, biggestFileSize});
+        return totalSize;
     }
 
     wrap(outDir: string) {
